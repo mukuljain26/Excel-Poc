@@ -1,4 +1,5 @@
 import { Component } from "@angular/core";
+import { projection } from "@angular/core/src/render3/instructions";
 const template = require("./app.component.html");
 /* global console, Excel, require */
 
@@ -9,16 +10,7 @@ const template = require("./app.component.html");
 export default class AppComponent {
   welcomeMessage = "Welcome";
   answerByAuthor: number = 15;
-
-  jsonFormatWithValues = {
-    questionCell: "B2",
-    question: "What is the sum of following values?",
-    choiceOfAnswerRange: "B3:B5",
-    valuesToSum: [[3], [5], [7]],
-    gradedCell: "B6",
-    wrongAnswerColor: "red",
-    rightAnswerColor: "green"
-  };
+  jsonFormatWithValues: any;
 
   async run() {
     try {
@@ -26,6 +18,10 @@ export default class AppComponent {
         /**
          * Insert your Excel code here
          */
+
+        // get object data from localStorage
+        this.jsonFormatWithValues = JSON.parse(localStorage.getItem('jsonFormatWithValues'));
+
         const range = context.workbook.getSelectedRange();
 
         // Read the range address
@@ -38,13 +34,13 @@ export default class AppComponent {
          * My code goes here for POC
          */
         var mySheet = context.workbook.worksheets.getActiveWorksheet();
-        mySheet.protection.unprotect();
+        // mySheet.protection.protect();
         var myRangeForGradedCell = mySheet.getRange(this.jsonFormatWithValues.gradedCell);
         myRangeForGradedCell.format.autofitColumns();
 
         switch ((<HTMLInputElement>document.getElementById('test')).value) {
           case "openAssignment":
-
+            
             var myRangeForQuestion = mySheet.getRange(this.jsonFormatWithValues.questionCell);
             myRangeForQuestion.values = [[this.jsonFormatWithValues.question]];
             myRangeForQuestion.format.autofitColumns();
@@ -60,7 +56,9 @@ export default class AppComponent {
           case "takeAssignment":
             myRangeForGradedCell.load("values");
             myRangeForGradedCell.load("formulas");
+            // myRangeForGradedCell.format.protection.load("locked");
             await context.sync();
+            // myRangeForGradedCell.format.protection.locked = false;
             console.log(myRangeForGradedCell.values[0][0]);
             console.log(myRangeForGradedCell.formulas[0][0]);
             break;
@@ -68,7 +66,9 @@ export default class AppComponent {
           case "postReview":
             myRangeForGradedCell.load("formulas");
             myRangeForGradedCell.load("values");
+            // myRangeForGradedCell.format.protection.load("locked");
             await context.sync();
+            // myRangeForGradedCell.format.protection.locked = true;
             if (myRangeForGradedCell.formulas[0][0] === "=SUM(B3:B5)" && myRangeForGradedCell.values[0][0] === this.answerByAuthor) {
               myRangeForGradedCell.format.fill.color = "Green";
             } else {
@@ -77,6 +77,7 @@ export default class AppComponent {
             break;
         }
       });
+
     } catch (error) {
       console.error(error);
     }

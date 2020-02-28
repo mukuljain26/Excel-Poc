@@ -1,5 +1,4 @@
 import { Component } from "@angular/core";
-import { projection } from "@angular/core/src/render3/instructions";
 const template = require("./app.component.html");
 /* global console, Excel, require */
 

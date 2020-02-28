@@ -33,13 +33,16 @@ export default class AppComponent {
          * My code goes here for POC
          */
         var mySheet = context.workbook.worksheets.getActiveWorksheet();
-        // mySheet.protection.protect();
+
+        // code for unprotecting sheet
+        mySheet.protection.unprotect();
+
         var myRangeForGradedCell = mySheet.getRange(this.jsonFormatWithValues.gradedCell);
         myRangeForGradedCell.format.autofitColumns();
 
         switch ((<HTMLInputElement>document.getElementById('test')).value) {
           case "openAssignment":
-            
+
             var myRangeForQuestion = mySheet.getRange(this.jsonFormatWithValues.questionCell);
             myRangeForQuestion.values = [[this.jsonFormatWithValues.question]];
             myRangeForQuestion.format.autofitColumns();
@@ -53,28 +56,30 @@ export default class AppComponent {
             break;
 
           case "takeAssignment":
-            myRangeForGradedCell.load("values");
-            myRangeForGradedCell.load("formulas");
-            // myRangeForGradedCell.format.protection.load("locked");
+            // enabling graded cell
+            myRangeForGradedCell.format.protection.load("locked");
             await context.sync();
-            // myRangeForGradedCell.format.protection.locked = false;
-            console.log(myRangeForGradedCell.values[0][0]);
-            console.log(myRangeForGradedCell.formulas[0][0]);
+            myRangeForGradedCell.format.protection.locked = false;
             break;
 
           case "postReview":
             myRangeForGradedCell.load("formulas");
             myRangeForGradedCell.load("values");
-            // myRangeForGradedCell.format.protection.load("locked");
             await context.sync();
-            // myRangeForGradedCell.format.protection.locked = true;
             if (myRangeForGradedCell.formulas[0][0] === "=SUM(B3:B5)" && myRangeForGradedCell.values[0][0] === this.answerByAuthor) {
               myRangeForGradedCell.format.fill.color = "Green";
             } else {
               myRangeForGradedCell.format.fill.color = "Red";
             }
+            // disabling graded cell
+            myRangeForGradedCell.format.protection.load("locked");
+            await context.sync();
+            myRangeForGradedCell.format.protection.locked = true;
             break;
         }
+        // protecting sheet
+        mySheet.protection.protect();
+
       });
 
     } catch (error) {

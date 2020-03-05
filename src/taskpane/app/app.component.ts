@@ -17,24 +17,24 @@ export default class AppComponent {
         /**
          * Insert your Excel code here
          */
-
+        // debugger;
         // get object data from localStorage
         this.jsonFormatWithValues = JSON.parse(localStorage.getItem('jsonFormatWithValues'));
 
-        const range = context.workbook.getSelectedRange();
+        // const range = context.workbook.getSelectedRange();
 
-        // Read the range address
-        range.load("address");
+        // // Read the range address
+        // range.load("address");
 
-        await context.sync();
-        console.log(`The range address was ${range.address}.`);
+        // await context.sync();
+        // console.log(`The range address was ${range.address}.`);
 
         /**
          * My code goes here for POC
          */
         var mySheet = context.workbook.worksheets.getActiveWorksheet();
 
-        // code for unprotecting sheet
+        // unprotecting sheet
         mySheet.protection.unprotect();
 
         var myRangeForGradedCell = mySheet.getRange(this.jsonFormatWithValues.gradedCell);
